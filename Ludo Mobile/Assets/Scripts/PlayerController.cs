@@ -42,11 +42,16 @@ public class PlayerController : MonoBehaviour
         float timeLeft = data.actionTimeLeft;
         playerTimmer.fillAmount = timeLeft / 100f;
 
-        // Dice visibility: show when rolling OR when the dice timer is still active (recent roll animation)
-        bool showDice = isCurrentTurn && (data.action == "roll_dice" || data.action == "rolling");
+        // Dado visible: tirar / animación, o mientras elige o mueve con valor ya conocido (no solo si hubo lastMove).
+        bool showDice = isCurrentTurn && (
+            data.action == "roll_dice"
+            || data.action == "rolling"
+            || ((data.action == "select_piece" || data.action == "move_piece") && data.diceValue >= 1));
         if (diceTimerActive)
-            showDice = true;  // keep dice visible during animation timer
+            showDice = true;
         dice.gameObject.SetActive(showDice);
+        if (showDice && data.diceValue >= 1 && data.diceValue <= 6 && !dice.IsRolling)
+            dice.RollTo(data.diceValue, 0);
     }
 
     public void Deactivate()

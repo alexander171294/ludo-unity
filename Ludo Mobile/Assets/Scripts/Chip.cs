@@ -19,7 +19,12 @@ public class Chip : MonoBehaviour
 
     public void MoveTo(Transform target, Vector3 stackOffset = default)
     {
-        transform.position = target.position + stackOffset;
+        if (target == null) return;
+        // Hijo del PlayerController + worldPosition en otro root ⇒ conversión escala/padre puede
+        // inflar localPosition (p. ej. Y ~2000). Casilla como padre + offset local = apilado estable.
+        transform.SetParent(target, false);
+        transform.localPosition = stackOffset;
+        transform.localRotation = Quaternion.identity;
     }
 
     public void SetClickable(bool clickable)

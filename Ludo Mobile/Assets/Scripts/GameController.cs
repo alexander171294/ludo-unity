@@ -8,6 +8,9 @@ public class GameController : MonoBehaviour
     public List<PlayerController> players;       // 0=red, 1=blue, 2=yellow, 3=green
     public List<GameObject> boardPositions;       // p0-p51
 
+    [Tooltip("Separación en Y local entre fichas apiladas en la misma casilla (relativo al transform de la casilla).")]
+    public float stackYOffsetPerChip = 5f;
+
     // ── Internal state ─────────────────────────────────────────────
     int      _lastVersion = -1;
     string   _lastMoveId;
@@ -20,6 +23,9 @@ public class GameController : MonoBehaviour
     // Dice visibility timer per color index — keeps dice visible after roll animation
     Dictionary<int, float> _diceShowUntil = new Dictionary<int, float>();
     const float DICE_SHOW_DURATION = 2.5f;
+
+    // Valor de dado visto en el poll anterior (por color). lastMove a veces no cambia si el rival no mueve ficha.
+    Dictionary<int, int> _prevDiceByColor = new Dictionary<int, int>();
 
     void Start()
     {
@@ -127,6 +133,10 @@ public class GameController : MonoBehaviour
         // ALWAYS update timers + dice visibility (these change even without version bump)
         UpdateTimersAndDice(info, localColorIndex);
 
+        // Clicks / flags (canMovePiece, action, canRollDice) must refresh every poll — a fetch
+        // right after select-piece can return the same version and would otherwise leave chips disabled.
+        ApplyInteractionState(info, localColorIndex);
+
         // Skip heavy updates if version hasn't changed
         if (info.version == _lastVersion) return;
 
@@ -161,8 +171,6 @@ public class GameController : MonoBehaviour
             if (pc.chips == null)
                 pc.InitChips(this);
 
-            bool isCurrentTurn = (p == info.currentPlayer);
-
             // Move chips to correct positions with stack offset
             for (int i = 0; i < pd.pieces.Length; i++)
             {
@@ -184,45 +192,22 @@ public class GameController : MonoBehaviour
                         positionCount[posKey] = 0;
                     int stackIndex = positionCount[posKey];
                     positionCount[posKey] = stackIndex + 1;
+                    // Límite por si el servidor repite posiciones: evita offsets absurdos
+                    stackIndex = Mathf.Min(stackIndex, 15);
 
-                    Vector3 offset = Vector3.up * (stackIndex * 15f);
+                    Vector3 offset = Vector3.up * (stackIndex * stackYOffsetPerChip);
                     chip.MoveTo(target, offset);
                 }
-
-                // Clickable only if it's our turn, we can move, and action is select_piece
-                bool clickable = (ci == localColorIndex)
-                              && isCurrentTurn
-                              && info.canMovePiece
-                              && pd.action == "select_piece";
-                chip.SetClickable(clickable);
-
-                if (clickable)
-                    Debug.Log($"[LUDO] Chip {piece.id} ({pd.color}) clickable at {piece.position}");
             }
         }
 
-        // Animate dice if lastMove changed (only for OTHER players — local already animated on click)
         if (info.lastMove != null && info.lastMove.moveId != _lastMoveId)
         {
             _lastMoveId = info.lastMove.moveId;
             int moveColorIndex = LudoClient.ColorToIndex(info.lastMove.playerColor);
             bool isLocalPlayerMove = (moveColorIndex == localColorIndex);
             Debug.Log($"[LUDO] New move: {info.lastMove.playerColor} rolled {info.lastMove.diceValue} (local={isLocalPlayerMove})");
-            if (!isLocalPlayerMove && _colorToPlayer.TryGetValue(moveColorIndex, out var movePC))
-            {
-                movePC.dice.gameObject.SetActive(true);
-                movePC.dice.RollTo(info.lastMove.diceValue, 8);
-                _diceShowUntil[moveColorIndex] = Time.time + DICE_SHOW_DURATION;
-            }
-        }
-
-        // Handle dice click for local player
-        if (localColorIndex >= 0 && _colorToPlayer.TryGetValue(localColorIndex, out var localPC))
-        {
-            if (info.canRollDice)
-                EnableDiceClick(localPC);
-            else
-                DisableDiceClick(localPC);
+            // Animación del dado remoto: UpdateTimersAndDice (cambio de diceValue), no lastMove.
         }
 
         // Handle game finished
@@ -230,6 +215,42 @@ public class GameController : MonoBehaviour
         {
             StopPolling();
             OnGameFinished(info.winner);
+        }
+    }
+
+    void ApplyInteractionState(RoomInfo info, int localColorIndex)
+    {
+        for (int p = 0; p < info.players.Length; p++)
+        {
+            var pd = info.players[p];
+            int ci = LudoClient.ColorToIndex(pd.color);
+            if (!_colorToPlayer.TryGetValue(ci, out var pc)) continue;
+
+            if (pc.chips == null)
+                pc.InitChips(this);
+
+            bool isCurrentTurn = (p == info.currentPlayer);
+
+            for (int i = 0; i < pd.pieces.Length; i++)
+            {
+                if (i >= pc.chips.Length) break;
+                var piece = pd.pieces[i];
+                var chip = pc.chips[i];
+
+                // Backend usa select_piece (elegir ficha) y move_piece (ejecutar / elegir destino según reglas del servidor).
+                bool pieceTurn = info.canMovePiece
+                              && (pd.action == "select_piece" || pd.action == "move_piece");
+                bool clickable = (ci == localColorIndex) && isCurrentTurn && pieceTurn;
+                chip.SetClickable(clickable);
+            }
+        }
+
+        if (localColorIndex >= 0 && _colorToPlayer.TryGetValue(localColorIndex, out var localPC))
+        {
+            if (info.canRollDice)
+                EnableDiceClick(localPC);
+            else
+                DisableDiceClick(localPC);
         }
     }
 
@@ -243,6 +264,19 @@ public class GameController : MonoBehaviour
             if (!_colorToPlayer.TryGetValue(ci, out var pc)) continue;
 
             bool isCurrentTurn = (p == info.currentPlayer);
+            int dv = pd.diceValue;
+            bool hadPrevDice = _prevDiceByColor.TryGetValue(ci, out int prevDice);
+
+            if (ci != localColorIndex && hadPrevDice && dv >= 1 && dv <= 6 && dv != prevDice
+                && (isCurrentTurn || prevDice == 0))
+            {
+                pc.dice.gameObject.SetActive(true);
+                pc.dice.RollTo(dv, 8);
+                _diceShowUntil[ci] = Time.time + DICE_SHOW_DURATION;
+            }
+
+            _prevDiceByColor[ci] = dv;
+
             bool diceTimerActive = _diceShowUntil.TryGetValue(ci, out float showUntil) && Time.time < showUntil;
             pc.UpdateState(pd, isCurrentTurn, info.gamePhase, diceTimerActive);
         }

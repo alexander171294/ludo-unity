@@ -245,7 +245,6 @@ public class LudoClient : MonoBehaviour
             }
             else
             {
-                Debug.Log($"[HTTP] GET {url} OK ({ms:F0}ms)");
                 onSuccess?.Invoke(req.downloadHandler.text);
             }
         }
@@ -269,7 +268,6 @@ public class LudoClient : MonoBehaviour
             }
             else
             {
-                Debug.Log($"[HTTP] POST {url} OK ({ms:F0}ms)");
                 onSuccess?.Invoke(req.downloadHandler.text);
             }
         }

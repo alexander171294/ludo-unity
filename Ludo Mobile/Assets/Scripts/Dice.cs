@@ -11,6 +11,8 @@ public class Dice : MonoBehaviour
 
     Coroutine _rollRoutine;
 
+    public bool IsRolling => _rollRoutine != null;
+
     void Start()
     {
         if (faces != null && faces.Count > 0)

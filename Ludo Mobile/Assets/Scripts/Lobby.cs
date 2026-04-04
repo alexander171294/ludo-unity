@@ -24,6 +24,7 @@ public class Lobby : MonoBehaviour
     public GameObject JoinButtonDisabled;
     public TMP_InputField RoomCodeInput;
     public Button createRoomButton;
+    public TextMeshProUGUI errorText;
 
     // ── Pick color and nickname ────────────────────────────────────
     public List<Button> colorButtons;                          // 0=Red,1=Blue,2=Green,3=Yellow
@@ -69,8 +70,21 @@ public class Lobby : MonoBehaviour
         startGameButton.onClick.AddListener(OnStartGame);
 
         // Initial UI state
+        ClearInitialError();
         UpdateJoinButtonState();
         UpdatePlayButtonState();
+    }
+
+    void ClearInitialError()
+    {
+        if (errorText != null)
+            errorText.text = "";
+    }
+
+    void SetInitialError(string message)
+    {
+        if (errorText != null)
+            errorText.text = message ?? "";
     }
 
     void OnDestroy()
@@ -82,7 +96,11 @@ public class Lobby : MonoBehaviour
     // STEP 1 — Initial Menu
     // ================================================================
 
-    void OnRoomCodeChanged(string _) => UpdateJoinButtonState();
+    void OnRoomCodeChanged(string _)
+    {
+        ClearInitialError();
+        UpdateJoinButtonState();
+    }
 
     void UpdateJoinButtonState()
     {
@@ -93,6 +111,7 @@ public class Lobby : MonoBehaviour
 
     void OnCreateRoom()
     {
+        ClearInitialError();
         createRoomButton.interactable = false;
         LudoClient.Instance.CreateRoom(
             onSuccess: (gameId) =>
@@ -104,6 +123,7 @@ public class Lobby : MonoBehaviour
             },
             onError: (err) =>
             {
+                SetInitialError(string.IsNullOrEmpty(err) ? "No se pudo crear la sala." : err);
                 Debug.LogError("CreateRoom error: " + err);
                 createRoomButton.interactable = true;
             }
@@ -112,6 +132,7 @@ public class Lobby : MonoBehaviour
 
     void OnJoinRoom()
     {
+        ClearInitialError();
         string code = RoomCodeInput.text.Trim();
         JoinButton.interactable = false;
         LudoClient.Instance.GetRoomInfo(code, null,
@@ -120,6 +141,7 @@ public class Lobby : MonoBehaviour
                 JoinButton.interactable = true;
                 if (info.gamePhase != "waiting")
                 {
+                    SetInitialError("La partida ya comenzó o terminó.");
                     Debug.LogWarning("Game already started or finished");
                     return;
                 }
@@ -129,6 +151,7 @@ public class Lobby : MonoBehaviour
             },
             onError: (err) =>
             {
+                SetInitialError(string.IsNullOrEmpty(err) ? "Sala no encontrada." : err);
                 Debug.LogError("JoinRoom error: " + err);
                 JoinButton.interactable = true;
             }
