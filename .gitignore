@@ -1,0 +1,83 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# —— Unity (carpeta del proyecto: Ludo Mobile/) ——
+# Plantilla base: https://github.com/github/gitignore/blob/main/Unity.gitignore
+
+Ludo Mobile/.utmp/
+Ludo Mobile/[Ll]ibrary/
+Ludo Mobile/[Tt]emp/
+Ludo Mobile/[Oo]bj/
+Ludo Mobile/[Bb]uild/
+Ludo Mobile/[Bb]uilds/
+Ludo Mobile/[Ll]ogs/
+Ludo Mobile/[Uu]ser[Ss]ettings/
+Ludo Mobile/*.log
+
+Ludo Mobile/*.blend1
+Ludo Mobile/*.blend1.meta
+
+Ludo Mobile/[Mm]emoryCaptures/
+Ludo Mobile/[Rr]ecordings/
+
+# Ludo Mobile/[Aa]ssets/AssetStoreTools*
+
+Ludo Mobile/[Aa]ssets/Plugins/Editor/JetBrains*
+*.DotSettings.user
+
+.vs/
+.gradle/
+Ludo Mobile/.gradle/
+
+Ludo Mobile/ExportedObj/
+.consulo/
+*.csproj
+*.unityproj
+*.sln
+*.suo
+*.tmp
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+
+*.pidb.meta
+*.pdb.meta
+*.mdb.meta
+
+Ludo Mobile/sysinfo.txt
+
+mono_crash.*
+
+*.apk
+*.aab
+*.unitypackage
+*.unitypackage.meta
+*.app
+
+crashlytics-build.properties
+
+Ludo Mobile/InitTestScene*.unity*
+
+Ludo Mobile/ServerData
+Ludo Mobile/[Aa]ssets/StreamingAssets/aa*
+Ludo Mobile/[Aa]ssets/AddressableAssetsData/link.xml*
+Ludo Mobile/[Aa]ssets/Addressables_Temp*
+Ludo Mobile/[Aa]ssets/AddressableAssetsData/*/*.bin*
+
+Ludo Mobile/[Aa]ssets/Unity.VisualScripting.Generated/VisualScripting.Flow/UnitOptions.db
+Ludo Mobile/[Aa]ssets/Unity.VisualScripting.Generated/VisualScripting.Flow/UnitOptions.db.meta
+Ludo Mobile/[Aa]ssets/Unity.VisualScripting.Generated/VisualScripting.Core/Property Providers
+Ludo Mobile/[Aa]ssets/Unity.VisualScripting.Generated/VisualScripting.Core/Property Providers.meta
+
+Ludo Mobile/[Aa]ssets/[Ii]nit[Tt]est[Ss]cene*.unity*
+
+# Rider / JetBrains
+.idea/
