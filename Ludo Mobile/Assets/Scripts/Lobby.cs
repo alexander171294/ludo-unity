@@ -3,6 +3,14 @@ using UnityEngine.UI;
 using TMPro;
 using System.Collections.Generic;
 
+public enum PlayerColor
+{
+    Red,
+    Blue,
+    Green,
+    Yellow
+}
+
 public class Lobby : MonoBehaviour
 {
 
@@ -17,7 +25,7 @@ public class Lobby : MonoBehaviour
     public Button createRoomButton;
 
     // Pick color and nickname variables //
-    // 0 = Red, 1 = Blue, 2 = Yellow, 3 = Green
+    // Listas indexadas como PlayerColor (0 = Red … 3 = Yellow)
     public List<Button> colorButtons;
     public List<Image> colorButtonsTaken;
     public List<Image> colorButtonsSelectedIndicator;
@@ -29,7 +37,7 @@ public class Lobby : MonoBehaviour
 
     // Lobby waiting players variables //
     // default disabled, waiting for players to join the lobby
-    // 0 = Red, 1 = Blue, 2 = Yellow, 3 = Green
+    // colorsIndicator indexado como PlayerColor
     public List<GameObject> colorsIndicator; // used to indicate the colors of the players in the lobby, have inside a TextMeshPro child gameobject called nick
     public Button startGameButton; // default disabled, waiting at least 2 players to be ready
     public GameObject startGameButtonDisabled; // default enabled, waiting at least 2 players to be ready

@@ -1013,6 +1013,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 504881761}
+  - component: {fileID: 504881762}
   m_Layer: 5
   m_Name: yellow
   m_TagString: Untagged
@@ -1049,6 +1050,35 @@ RectTransform:
   m_AnchoredPosition: {x: 209.6, y: -208}
   m_SizeDelta: {x: 264.1159, y: 267.0999}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &504881762
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 504881760}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 43bfedae5371246b09bac6001904a464, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerController
+  playerColor: 3
+  spawnPositions:
+  - {fileID: 1600654111}
+  - {fileID: 109290766}
+  - {fileID: 1050418866}
+  - {fileID: 427875056}
+  colorPositions:
+  - {fileID: 483881757}
+  - {fileID: 1445341869}
+  - {fileID: 2145061902}
+  - {fileID: 1509698404}
+  - {fileID: 2115302621}
+  endPosition: {fileID: 1075842392}
+  dice: {fileID: 1392384587297940337}
+  nickText: {fileID: 822549583}
+  playerTimmer: {fileID: 371182016}
+  chipPrefab: {fileID: 463080287809636124, guid: 4cb2c1cb552624f83a2df08d7cd3dd65, type: 3}
 --- !u!1 &511352399
 GameObject:
   m_ObjectHideFlags: 0
@@ -1393,6 +1423,17 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 8111611916775933326, guid: 9912b46c1b7834ab2a64daff08798c6e, type: 3}
   m_PrefabInstance: {fileID: 674720404}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &674720406 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8960053666889172924, guid: 9912b46c1b7834ab2a64daff08798c6e, type: 3}
+  m_PrefabInstance: {fileID: 674720404}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 39fc59be57e8b43909ea4a2098fcf255, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Dice
 --- !u!1 &678222657
 GameObject:
   m_ObjectHideFlags: 0
@@ -1733,6 +1774,7 @@ GameObject:
   - component: {fileID: 774297451}
   - component: {fileID: 774297450}
   - component: {fileID: 774297449}
+  - component: {fileID: 774297453}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -1827,6 +1869,18 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!114 &774297453
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 774297448}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2ed99daa03c2e43f39359d4dd71d6af1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameController
 --- !u!1 &781030816
 GameObject:
   m_ObjectHideFlags: 0
@@ -3128,6 +3182,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1095559609}
+  - component: {fileID: 1095559610}
   m_Layer: 5
   m_Name: blue
   m_TagString: Untagged
@@ -3164,6 +3219,35 @@ RectTransform:
   m_AnchoredPosition: {x: 209.6, y: 208.85}
   m_SizeDelta: {x: 264.1159, y: 267.0999}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1095559610
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1095559608}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 43bfedae5371246b09bac6001904a464, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerController
+  playerColor: 1
+  spawnPositions:
+  - {fileID: 1139882315}
+  - {fileID: 1499501784}
+  - {fileID: 1624572069}
+  - {fileID: 756870772}
+  colorPositions:
+  - {fileID: 661110162}
+  - {fileID: 1709939939}
+  - {fileID: 758912781}
+  - {fileID: 751093420}
+  - {fileID: 1578339263}
+  endPosition: {fileID: 164892687}
+  dice: {fileID: 674720406}
+  nickText: {fileID: 1155457448}
+  playerTimmer: {fileID: 678222659}
+  chipPrefab: {fileID: 1305935346590472955, guid: 35cf44da882504bb5820697393fbec14, type: 3}
 --- !u!1 &1104942005
 GameObject:
   m_ObjectHideFlags: 0
@@ -3739,6 +3823,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1335620183}
+  - component: {fileID: 1335620184}
   m_Layer: 5
   m_Name: red
   m_TagString: Untagged
@@ -3775,6 +3860,35 @@ RectTransform:
   m_AnchoredPosition: {x: -209.34203, y: 208.85007}
   m_SizeDelta: {x: 264.1159, y: 267.0999}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1335620184
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1335620182}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 43bfedae5371246b09bac6001904a464, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerController
+  playerColor: 0
+  spawnPositions:
+  - {fileID: 1202469212}
+  - {fileID: 339131246}
+  - {fileID: 1450877467}
+  - {fileID: 443745344}
+  colorPositions:
+  - {fileID: 1111630205}
+  - {fileID: 2066167095}
+  - {fileID: 1518524645}
+  - {fileID: 445144097}
+  - {fileID: 94871417}
+  endPosition: {fileID: 1087813067}
+  dice: {fileID: 1802325446}
+  nickText: {fileID: 1068366323}
+  playerTimmer: {fileID: 1718394536}
+  chipPrefab: {fileID: 6270492730775870853, guid: aeaff0d0b8cbb43259d7a4793f8d279d, type: 3}
 --- !u!1 &1349475679
 GameObject:
   m_ObjectHideFlags: 0
@@ -3947,6 +4061,17 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 8111611916775933326, guid: 9912b46c1b7834ab2a64daff08798c6e, type: 3}
   m_PrefabInstance: {fileID: 1415487362}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1415487364 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8960053666889172924, guid: 9912b46c1b7834ab2a64daff08798c6e, type: 3}
+  m_PrefabInstance: {fileID: 1415487362}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 39fc59be57e8b43909ea4a2098fcf255, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Dice
 --- !u!1 &1442232243
 GameObject:
   m_ObjectHideFlags: 0
@@ -4755,6 +4880,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1653948745}
+  - component: {fileID: 1653948746}
   m_Layer: 5
   m_Name: green
   m_TagString: Untagged
@@ -4791,6 +4917,35 @@ RectTransform:
   m_AnchoredPosition: {x: -209.34, y: -208}
   m_SizeDelta: {x: 264.1159, y: 267.0999}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1653948746
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1653948744}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 43bfedae5371246b09bac6001904a464, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerController
+  playerColor: 2
+  spawnPositions:
+  - {fileID: 901313458}
+  - {fileID: 2031658057}
+  - {fileID: 637125324}
+  - {fileID: 1828331004}
+  colorPositions:
+  - {fileID: 1839630023}
+  - {fileID: 948751613}
+  - {fileID: 886022327}
+  - {fileID: 1795614581}
+  - {fileID: 844092524}
+  endPosition: {fileID: 152116484}
+  dice: {fileID: 1415487364}
+  nickText: {fileID: 846321285}
+  playerTimmer: {fileID: 1571441948}
+  chipPrefab: {fileID: 8442976229651863061, guid: e513d6d249e3b4009abf4a3746b14749, type: 3}
 --- !u!1 &1682964184
 GameObject:
   m_ObjectHideFlags: 0
@@ -5073,6 +5228,17 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 8111611916775933326, guid: 9912b46c1b7834ab2a64daff08798c6e, type: 3}
   m_PrefabInstance: {fileID: 1802325444}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1802325446 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8960053666889172924, guid: 9912b46c1b7834ab2a64daff08798c6e, type: 3}
+  m_PrefabInstance: {fileID: 1802325444}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 39fc59be57e8b43909ea4a2098fcf255, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Dice
 --- !u!1 &1813993873
 GameObject:
   m_ObjectHideFlags: 0
@@ -5757,8 +5923,8 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1335620183}
-  - {fileID: 504881761}
   - {fileID: 1095559609}
+  - {fileID: 504881761}
   - {fileID: 1653948745}
   - {fileID: 2109229887}
   m_Father: {fileID: 774297452}
@@ -5903,6 +6069,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 9912b46c1b7834ab2a64daff08798c6e, type: 3}
+--- !u!114 &1392384587297940337 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8960053666889172924, guid: 9912b46c1b7834ab2a64daff08798c6e, type: 3}
+  m_PrefabInstance: {fileID: 1392384587297940336}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 39fc59be57e8b43909ea4a2098fcf255, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Dice
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 1452323447586126799}
   - component: {fileID: 2641812399050465082}
   - component: {fileID: 7002492954414111956}
+  - component: {fileID: 7105157095812181964}
   m_Layer: 5
   m_Name: RedChip
   m_TagString: Untagged
@@ -120,3 +121,16 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &7105157095812181964
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6270492730775870853}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f116598ddd3114d78a6d8be88bfe8d9c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Chip
+  chipButton: {fileID: 7002492954414111956}
