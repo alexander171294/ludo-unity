@@ -407,8 +407,79 @@ public class GameController : MonoBehaviour
             list.AddRange(ring);
             return list;
         }
+        List<string> colorPath = TryExpandColorPath(from, to, ci);
+        if (colorPath != null && colorPath.Count > 0)
+        {
+            list.AddRange(colorPath);
+            return list;
+        }
         list.Add(to);
         return list;
+    }
+
+    static bool IsEndCellId(string posId)
+    {
+        return !string.IsNullOrEmpty(posId) && (posId == "ep" || posId.StartsWith("ep"));
+    }
+
+    static bool TryParseColorPathIndex(string posId, out int index1Based)
+    {
+        index1Based = 0;
+        if (string.IsNullOrEmpty(posId) || !posId.StartsWith("cp")) return false;
+        if (!int.TryParse(posId.Substring(2), out index1Based) || index1Based < 1) return false;
+        return true;
+    }
+
+    int GetColorPathMaxIndex(int ci)
+    {
+        if (_colorToPlayer.TryGetValue(ci, out var pc) && pc.colorPositions != null && pc.colorPositions.Count > 0)
+            return pc.colorPositions.Count;
+        return 5;
+    }
+
+    /// <summary>
+    /// Pasos intermedios en columna de color (cp1→cpN) y hacia meta (ep). El anillo ya lo cubre TryExpandMainRingForward.
+    /// </summary>
+    List<string> TryExpandColorPath(string from, string to, int ci)
+    {
+        int maxCp = GetColorPathMaxIndex(ci);
+        bool fromCp = TryParseColorPathIndex(from, out int fromCi);
+        bool toCp = TryParseColorPathIndex(to, out int toCi);
+        bool fromRingOrSpawn = TryGetBoardCellIndex(from, out _)
+            || (!string.IsNullOrEmpty(from) && from.StartsWith("sp"));
+
+        // cp_a → cp_b (misma columna, hacia delante)
+        if (fromCp && toCp)
+        {
+            if (toCi <= fromCi) return null;
+            toCi = Mathf.Min(toCi, maxCp);
+            var steps = new List<string>();
+            for (int k = fromCi + 1; k <= toCi; k++)
+                steps.Add("cp" + k);
+            return steps.Count > 0 ? steps : null;
+        }
+
+        // Anillo o salida (sp) → casilla de color (entrada a columna)
+        if (fromRingOrSpawn && toCp)
+        {
+            toCi = Mathf.Min(toCi, maxCp);
+            var steps = new List<string>();
+            for (int k = 1; k <= toCi; k++)
+                steps.Add("cp" + k);
+            return steps.Count > 0 ? steps : null;
+        }
+
+        // cp_* → meta
+        if (fromCp && IsEndCellId(to))
+        {
+            var steps = new List<string>();
+            for (int k = fromCi + 1; k <= maxCp; k++)
+                steps.Add("cp" + k);
+            steps.Add("ep");
+            return steps;
+        }
+
+        return null;
     }
 
     List<string> TryExpandMainRingForward(string from, string to)
