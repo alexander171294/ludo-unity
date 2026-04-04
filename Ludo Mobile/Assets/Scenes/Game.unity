@@ -1079,6 +1079,7 @@ MonoBehaviour:
   nickText: {fileID: 822549583}
   playerTimmer: {fileID: 371182016}
   chipPrefab: {fileID: 463080287809636124, guid: 4cb2c1cb552624f83a2df08d7cd3dd65, type: 3}
+  UI_playerCard: {fileID: 1442232243}
 --- !u!1 &511352399
 GameObject:
   m_ObjectHideFlags: 0
@@ -1701,7 +1702,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &770051978
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1832,14 +1833,14 @@ Canvas:
   m_Enabled: 1
   serializedVersion: 3
   m_RenderMode: 1
-  m_Camera: {fileID: 0}
+  m_Camera: {fileID: 514894207}
   m_PlaneDistance: 100
   m_PixelPerfect: 0
   m_ReceivesEvents: 1
   m_OverrideSorting: 0
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
-  m_VertexColorAlwaysGammaSpace: 0
+  m_VertexColorAlwaysGammaSpace: 1
   m_UseReflectionProbes: 0
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
@@ -1881,6 +1882,64 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2ed99daa03c2e43f39359d4dd71d6af1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameController
+  players:
+  - {fileID: 1335620184}
+  - {fileID: 1095559610}
+  - {fileID: 504881762}
+  - {fileID: 1653948746}
+  boardPositions:
+  - {fileID: 1108123945}
+  - {fileID: 2061257667}
+  - {fileID: 1530706602}
+  - {fileID: 1682964184}
+  - {fileID: 781030816}
+  - {fileID: 1104942005}
+  - {fileID: 1621884159}
+  - {fileID: 511352399}
+  - {fileID: 1027227806}
+  - {fileID: 1853482474}
+  - {fileID: 211703329}
+  - {fileID: 154487516}
+  - {fileID: 1385181203}
+  - {fileID: 880463855}
+  - {fileID: 171041784}
+  - {fileID: 802063875}
+  - {fileID: 1612760454}
+  - {fileID: 385159177}
+  - {fileID: 1578072760}
+  - {fileID: 2065073919}
+  - {fileID: 1623378997}
+  - {fileID: 309021475}
+  - {fileID: 969121770}
+  - {fileID: 826626395}
+  - {fileID: 158295701}
+  - {fileID: 1036179489}
+  - {fileID: 1299758815}
+  - {fileID: 955255895}
+  - {fileID: 1914228796}
+  - {fileID: 1550161380}
+  - {fileID: 213858398}
+  - {fileID: 1864671432}
+  - {fileID: 1081988553}
+  - {fileID: 58359307}
+  - {fileID: 1196721551}
+  - {fileID: 2062197637}
+  - {fileID: 347795410}
+  - {fileID: 1239523703}
+  - {fileID: 1066422893}
+  - {fileID: 356479024}
+  - {fileID: 957124936}
+  - {fileID: 735816603}
+  - {fileID: 1349475679}
+  - {fileID: 467069232}
+  - {fileID: 219409106}
+  - {fileID: 2094064634}
+  - {fileID: 232310096}
+  - {fileID: 1813993873}
+  - {fileID: 1167496342}
+  - {fileID: 751547999}
+  - {fileID: 165482341}
+  - {fileID: 1249543396}
 --- !u!1 &781030816
 GameObject:
   m_ObjectHideFlags: 0
@@ -2850,10 +2909,10 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 770051978}
   - {fileID: 1449932641}
-  - {fileID: 1496129476}
+  - {fileID: 770051978}
   - {fileID: 1442232244}
+  - {fileID: 1496129476}
   m_Father: {fileID: 774297452}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -3248,6 +3307,7 @@ MonoBehaviour:
   nickText: {fileID: 1155457448}
   playerTimmer: {fileID: 678222659}
   chipPrefab: {fileID: 1305935346590472955, guid: 35cf44da882504bb5820697393fbec14, type: 3}
+  UI_playerCard: {fileID: 770051977}
 --- !u!1 &1104942005
 GameObject:
   m_ObjectHideFlags: 0
@@ -3889,6 +3949,7 @@ MonoBehaviour:
   nickText: {fileID: 1068366323}
   playerTimmer: {fileID: 1718394536}
   chipPrefab: {fileID: 6270492730775870853, guid: aeaff0d0b8cbb43259d7a4793f8d279d, type: 3}
+  UI_playerCard: {fileID: 1449932640}
 --- !u!1 &1349475679
 GameObject:
   m_ObjectHideFlags: 0
@@ -4089,7 +4150,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1442232244
 RectTransform:
   m_ObjectHideFlags: 0
@@ -4202,7 +4263,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1449932641
 RectTransform:
   m_ObjectHideFlags: 0
@@ -4315,7 +4376,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1496129476
 RectTransform:
   m_ObjectHideFlags: 0
@@ -4946,6 +5007,7 @@ MonoBehaviour:
   nickText: {fileID: 846321285}
   playerTimmer: {fileID: 1571441948}
   chipPrefab: {fileID: 8442976229651863061, guid: e513d6d249e3b4009abf4a3746b14749, type: 3}
+  UI_playerCard: {fileID: 1496129475}
 --- !u!1 &1682964184
 GameObject:
   m_ObjectHideFlags: 0

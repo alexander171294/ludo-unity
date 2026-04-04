@@ -13,6 +13,7 @@ public class PlayerController : MonoBehaviour
     public TextMeshProUGUI nickText;
     public Image playerTimmer; // configured fill horizontal from 1 to 0 (no time left)
     public GameObject chipPrefab; // have Chip.cs Script attached to it
+    public GameObject UI_playerCard; // this is visual indicator of the player in the game, disabled by default, must be enabled when the player is in this position
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
