@@ -17,9 +17,9 @@ public class Chip : MonoBehaviour
         _controller = controller;
     }
 
-    public void MoveTo(Transform target)
+    public void MoveTo(Transform target, Vector3 stackOffset = default)
     {
-        transform.position = target.position;
+        transform.position = target.position + stackOffset;
     }
 
     public void SetClickable(bool clickable)
@@ -27,6 +27,7 @@ public class Chip : MonoBehaviour
         chipButton.onClick.RemoveAllListeners();
         if (clickable)
             chipButton.onClick.AddListener(() => _controller.OnChipClicked(pieceId));
-        chipButton.interactable = clickable;
+        // Don't toggle interactable — it changes the button's color tint (makes it transparent)
+        // Instead, just control whether click listeners are attached
     }
 }

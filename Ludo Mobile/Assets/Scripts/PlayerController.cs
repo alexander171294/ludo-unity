@@ -32,7 +32,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    public void UpdateState(PlayerData data, bool isCurrentTurn, string gamePhase)
+    public void UpdateState(PlayerData data, bool isCurrentTurn, string gamePhase, bool diceTimerActive = false)
     {
         isActive = true;
         UI_playerCard.SetActive(true);
@@ -42,8 +42,10 @@ public class PlayerController : MonoBehaviour
         float timeLeft = data.actionTimeLeft;
         playerTimmer.fillAmount = timeLeft / 100f;
 
-        // Dice visibility: show when it's this player's turn and they need to roll or are rolling
+        // Dice visibility: show when rolling OR when the dice timer is still active (recent roll animation)
         bool showDice = isCurrentTurn && (data.action == "roll_dice" || data.action == "rolling");
+        if (diceTimerActive)
+            showDice = true;  // keep dice visible during animation timer
         dice.gameObject.SetActive(showDice);
     }
 

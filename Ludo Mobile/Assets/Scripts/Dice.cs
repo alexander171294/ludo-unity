@@ -43,7 +43,8 @@ public class Dice : MonoBehaviour
 
     IEnumerator RollRoutine(int targetIndex, int rounds)
     {
-        float stepDuration = rollSpeed > 0f ? 1f / rollSpeed : 0.05f;
+        // rollSpeed = seconds per step (e.g. 0.1 = fast, 0.5 = slow)
+        float stepDuration = rollSpeed > 0f ? rollSpeed : 0.1f;
         int lastIndex = GetActiveFaceIndex();
 
         for (int i = 0; i < rounds; i++)

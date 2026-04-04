@@ -233,18 +233,27 @@ public class LudoClient : MonoBehaviour
 
     IEnumerator Get(string url, Action<string> onSuccess, Action<string> onError)
     {
+        float t0 = Time.realtimeSinceStartup;
         using (var req = UnityWebRequest.Get(url))
         {
             yield return req.SendWebRequest();
+            float ms = (Time.realtimeSinceStartup - t0) * 1000f;
             if (req.result != UnityWebRequest.Result.Success)
+            {
+                Debug.LogWarning($"[HTTP] GET {url} FAILED ({ms:F0}ms): {req.error}");
                 onError?.Invoke(req.error);
+            }
             else
+            {
+                Debug.Log($"[HTTP] GET {url} OK ({ms:F0}ms)");
                 onSuccess?.Invoke(req.downloadHandler.text);
+            }
         }
     }
 
     IEnumerator Post(string url, string jsonBody, Action<string> onSuccess, Action<string> onError)
     {
+        float t0 = Time.realtimeSinceStartup;
         using (var req = new UnityWebRequest(url, "POST"))
         {
             byte[] bodyRaw = Encoding.UTF8.GetBytes(jsonBody);
@@ -252,10 +261,17 @@ public class LudoClient : MonoBehaviour
             req.downloadHandler = new DownloadHandlerBuffer();
             req.SetRequestHeader("Content-Type", "application/json");
             yield return req.SendWebRequest();
+            float ms = (Time.realtimeSinceStartup - t0) * 1000f;
             if (req.result != UnityWebRequest.Result.Success)
+            {
+                Debug.LogWarning($"[HTTP] POST {url} FAILED ({ms:F0}ms): {req.error}");
                 onError?.Invoke(req.error);
+            }
             else
+            {
+                Debug.Log($"[HTTP] POST {url} OK ({ms:F0}ms)");
                 onSuccess?.Invoke(req.downloadHandler.text);
+            }
         }
     }
 }
