@@ -11,6 +11,9 @@ public class GameController : MonoBehaviour
     [Tooltip("Separación en Y local entre fichas apiladas en la misma casilla (relativo al transform de la casilla).")]
     public float stackYOffsetPerChip = 5f;
 
+    [Tooltip("Pausa entre casillas al animar un movimiento (local u otro jugador).")]
+    public float chipStepSeconds = 0.07f;
+
     // ── Internal state ─────────────────────────────────────────────
     int      _lastVersion = -1;
     string   _lastMoveId;
@@ -26,6 +29,15 @@ public class GameController : MonoBehaviour
 
     // Valor de dado visto en el poll anterior (por color). lastMove a veces no cambia si el rival no mueve ficha.
     Dictionary<int, int> _prevDiceByColor = new Dictionary<int, int>();
+
+    readonly HashSet<Chip> _chipsPathAnimating = new HashSet<Chip>();
+    readonly Dictionary<Chip, Coroutine> _chipPathCoroutines = new Dictionary<Chip, Coroutine>();
+
+    class PathAnimSpec
+    {
+        public string snapFrom;
+        public List<string> steps = new List<string>();
+    }
 
     void Start()
     {
@@ -55,6 +67,13 @@ public class GameController : MonoBehaviour
     void OnDestroy()
     {
         StopPolling();
+        foreach (var kv in _chipPathCoroutines)
+        {
+            if (kv.Value != null)
+                StopCoroutine(kv.Value);
+        }
+        _chipPathCoroutines.Clear();
+        _chipsPathAnimating.Clear();
     }
 
     void FetchAndInit()
@@ -155,59 +174,71 @@ public class GameController : MonoBehaviour
             }
         }
 
+        Dictionary<(int ci, int pieceId), PathAnimSpec> pathAnims = null;
+        if (info.lastMove != null && info.lastMove.moves != null && info.lastMove.moves.Length > 0
+            && info.lastMove.moveId != _lastMoveId)
+        {
+            pathAnims = BuildPathAnimsFromLastMove(info.lastMove);
+            _lastMoveId = info.lastMove.moveId;
+            int moveColorIndex = LudoClient.ColorToIndex(info.lastMove.playerColor);
+            bool isLocalPlayerMove = (moveColorIndex == localColorIndex);
+            Debug.Log($"[LUDO] New move: {info.lastMove.playerColor} rolled {info.lastMove.diceValue} (local={isLocalPlayerMove})");
+        }
+
         _lastVersion = info.version;
 
-        // Count how many chips land on each position for stacking offset
         Dictionary<string, int> positionCount = new Dictionary<string, int>();
 
-        // Update each player + move chips
         for (int p = 0; p < info.players.Length; p++)
         {
             var pd = info.players[p];
             int ci = LudoClient.ColorToIndex(pd.color);
             if (!_colorToPlayer.TryGetValue(ci, out var pc)) continue;
 
-            // Init chips if new player appeared mid-game
             if (pc.chips == null)
                 pc.InitChips(this);
 
-            // Move chips to correct positions with stack offset
             for (int i = 0; i < pd.pieces.Length; i++)
             {
                 if (i >= pc.chips.Length) break;
                 var piece = pd.pieces[i];
-                var chip = pc.chips[i];
+                var chip = FindChipForPiece(pc, i, piece.id);
 
                 chip.gameObject.SetActive(true);
                 Transform target = ResolvePosition(piece.position, ci);
-                if (target != null)
+                if (target == null) continue;
+
+                string posKey = StackKeyForPosition(piece.position, ci);
+                if (!positionCount.ContainsKey(posKey))
+                    positionCount[posKey] = 0;
+                int stackIndex = positionCount[posKey];
+                positionCount[posKey] = stackIndex + 1;
+                stackIndex = Mathf.Min(stackIndex, 15);
+                Vector3 offset = Vector3.up * (stackIndex * stackYOffsetPerChip);
+
+                PathAnimSpec panim = null;
+                bool hasPath = pathAnims != null
+                    && pathAnims.TryGetValue((ci, piece.id), out panim)
+                    && panim != null
+                    && panim.steps != null
+                    && panim.steps.Count > 0;
+
+                if (hasPath)
                 {
-                    // Stack offset: count chips already placed at this position
-                    string posKey = piece.position + "_" + ci;
-                    // For board positions (shared), use just the position as key
-                    if (piece.position.StartsWith("p") && !piece.position.StartsWith("ps"))
-                        posKey = piece.position;
-
-                    if (!positionCount.ContainsKey(posKey))
-                        positionCount[posKey] = 0;
-                    int stackIndex = positionCount[posKey];
-                    positionCount[posKey] = stackIndex + 1;
-                    // Límite por si el servidor repite posiciones: evita offsets absurdos
-                    stackIndex = Mathf.Min(stackIndex, 15);
-
-                    Vector3 offset = Vector3.up * (stackIndex * stackYOffsetPerChip);
+                    StopChipPathIfRunning(chip);
+                    Coroutine co = StartCoroutine(RunChipStepPath(chip, ci, panim.snapFrom, panim.steps, target, offset));
+                    _chipPathCoroutines[chip] = co;
+                }
+                else if (_chipsPathAnimating.Contains(chip))
+                {
+                    // No cortar el recorrido si el poll avanza versión antes de terminar la animación.
+                }
+                else
+                {
+                    StopChipPathIfRunning(chip);
                     chip.MoveTo(target, offset);
                 }
             }
-        }
-
-        if (info.lastMove != null && info.lastMove.moveId != _lastMoveId)
-        {
-            _lastMoveId = info.lastMove.moveId;
-            int moveColorIndex = LudoClient.ColorToIndex(info.lastMove.playerColor);
-            bool isLocalPlayerMove = (moveColorIndex == localColorIndex);
-            Debug.Log($"[LUDO] New move: {info.lastMove.playerColor} rolled {info.lastMove.diceValue} (local={isLocalPlayerMove})");
-            // Animación del dado remoto: UpdateTimersAndDice (cambio de diceValue), no lastMove.
         }
 
         // Handle game finished
@@ -280,6 +311,135 @@ public class GameController : MonoBehaviour
             bool diceTimerActive = _diceShowUntil.TryGetValue(ci, out float showUntil) && Time.time < showUntil;
             pc.UpdateState(pd, isCurrentTurn, info.gamePhase, diceTimerActive);
         }
+    }
+
+    static string StackKeyForPosition(string position, int ci)
+    {
+        if (string.IsNullOrEmpty(position))
+            return "_" + ci;
+        string posKey = position + "_" + ci;
+        if (position.StartsWith("p") && !position.StartsWith("ps"))
+            posKey = position;
+        return posKey;
+    }
+
+    Chip FindChipForPiece(PlayerController pc, int arrayIndex, int serverPieceId)
+    {
+        if (pc.chips == null) return null;
+        for (int j = 0; j < pc.chips.Length; j++)
+        {
+            if (pc.chips[j] != null && pc.chips[j].pieceId == serverPieceId)
+                return pc.chips[j];
+        }
+        if (arrayIndex >= 0 && arrayIndex < pc.chips.Length)
+            return pc.chips[arrayIndex];
+        return null;
+    }
+
+    void StopChipPathIfRunning(Chip chip)
+    {
+        if (chip == null) return;
+        if (_chipPathCoroutines.TryGetValue(chip, out Coroutine co) && co != null)
+            StopCoroutine(co);
+        _chipPathCoroutines.Remove(chip);
+        _chipsPathAnimating.Remove(chip);
+    }
+
+    IEnumerator RunChipStepPath(Chip chip, int ci, string snapFrom, List<string> steps, Transform finalTarget, Vector3 finalOffset)
+    {
+        _chipsPathAnimating.Add(chip);
+        float stepDelay = chipStepSeconds > 0f ? chipStepSeconds : 0.05f;
+        try
+        {
+            if (!string.IsNullOrEmpty(snapFrom))
+            {
+                Transform st = ResolvePosition(snapFrom, ci);
+                if (st != null)
+                    chip.MoveTo(st, Vector3.zero);
+            }
+
+            for (int s = 0; s < steps.Count; s++)
+            {
+                bool isLast = (s == steps.Count - 1);
+                Transform t = ResolvePosition(steps[s], ci);
+                if (t == null) continue;
+                Vector3 off = isLast ? finalOffset : Vector3.zero;
+                chip.MoveTo(t, off);
+                if (s < steps.Count - 1)
+                    yield return new WaitForSeconds(stepDelay);
+            }
+
+            if (finalTarget != null)
+                chip.MoveTo(finalTarget, finalOffset);
+        }
+        finally
+        {
+            _chipsPathAnimating.Remove(chip);
+            _chipPathCoroutines.Remove(chip);
+        }
+    }
+
+    Dictionary<(int ci, int pieceId), PathAnimSpec> BuildPathAnimsFromLastMove(LastMoveData lm)
+    {
+        var dict = new Dictionary<(int ci, int pieceId), PathAnimSpec>();
+        foreach (var m in lm.moves)
+        {
+            int ci = LudoClient.ColorToIndex(m.playerColor);
+            var key = (ci, m.pieceId);
+            if (!dict.TryGetValue(key, out PathAnimSpec pa))
+            {
+                pa = new PathAnimSpec { snapFrom = m.fromPosition };
+                dict[key] = pa;
+            }
+            pa.steps.AddRange(BuildStepTargets(m.fromPosition, m.toPosition, ci));
+        }
+        return dict;
+    }
+
+    List<string> BuildStepTargets(string from, string to, int ci)
+    {
+        var list = new List<string>();
+        if (string.IsNullOrEmpty(to) || from == to)
+            return list;
+        List<string> ring = TryExpandMainRingForward(from, to);
+        if (ring != null && ring.Count > 0)
+        {
+            list.AddRange(ring);
+            return list;
+        }
+        list.Add(to);
+        return list;
+    }
+
+    List<string> TryExpandMainRingForward(string from, string to)
+    {
+        if (boardPositions == null || boardPositions.Count == 0)
+            return null;
+        if (!TryGetBoardCellIndex(from, out int a) || !TryGetBoardCellIndex(to, out int b))
+            return null;
+        int n = boardPositions.Count;
+        var list = new List<string>();
+        int cur = a;
+        for (int guard = 0; cur != b && guard < n + 2; guard++)
+        {
+            cur = (cur + 1) % n;
+            list.Add("p" + cur);
+        }
+        return list.Count > 0 ? list : null;
+    }
+
+    bool TryGetBoardCellIndex(string posId, out int idx)
+    {
+        idx = -1;
+        if (string.IsNullOrEmpty(posId)) return false;
+        if (posId.StartsWith("p") && !posId.StartsWith("ps"))
+        {
+            string numStr = posId.Substring(1);
+            if (int.TryParse(numStr, out idx) && idx >= 0 && idx < boardPositions.Count)
+                return true;
+        }
+        idx = -1;
+        return false;
     }
 
     // ── Position Resolution ────────────────────────────────────────
