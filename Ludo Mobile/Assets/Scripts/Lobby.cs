@@ -353,4 +353,5 @@ public class Lobby : MonoBehaviour
     {
         playerIndicator.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = nick;
     }
+    
 }
