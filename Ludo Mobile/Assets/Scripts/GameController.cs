@@ -282,13 +282,26 @@ public class GameController : MonoBehaviour
                 bool onEnd = !string.IsNullOrEmpty(piece.position)
                     && (piece.position == "ep" || piece.position.StartsWith("ep"));
 
+                bool onColorPath = TryParseColorPathIndex(piece.position, out int cpIdx);
+                int remainingToEndOnColor = 0;
+                if (onColorPath)
+                {
+                    int maxCp = GetColorPathMaxIndex(ci);
+                    remainingToEndOnColor = Mathf.Max(0, maxCp - cpIdx + 1);
+                }
+                // En columna de color: el dado no puede superar los pasos hasta la meta (incluye ep).
+                bool colorPathDiceOk = !onColorPath
+                    || (diceForHints >= 1 && diceForHints <= 6 && diceForHints <= remainingToEndOnColor);
+
                 // Backend usa select_piece (elegir ficha) y move_piece (ejecutar / elegir destino según reglas del servidor).
                 bool pieceTurn = info.canMovePiece
                               && (pd.action == "select_piece" || pd.action == "move_piece");
-                bool clickable = (ci == localColorIndex) && isCurrentTurn && pieceTurn && !onEnd;
+                bool clickable = (ci == localColorIndex) && isCurrentTurn && pieceTurn && !onEnd
+                    && (!onSpawn || diceAllowsSpawnExit)
+                    && colorPathDiceOk;
                 chip.SetClickable(clickable);
 
-                bool showChipIndicator = showMoveHints && !onEnd && (!onSpawn || diceAllowsSpawnExit);
+                bool showChipIndicator = showMoveHints && !onEnd && (!onSpawn || diceAllowsSpawnExit) && colorPathDiceOk;
                 chip.SetIndicatorActive(showChipIndicator);
             }
         }
