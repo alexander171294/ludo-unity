@@ -47,6 +47,36 @@ public class Lobby : MonoBehaviour
     Coroutine _pollRoutine;
 
     // ================================================================
+    void OnEnable()
+    {
+        LudoClient.OnApplicationResumed += HandleApplicationResumed;
+    }
+
+    void OnDisable()
+    {
+        LudoClient.OnApplicationResumed -= HandleApplicationResumed;
+    }
+
+    void HandleApplicationResumed()
+    {
+        if (_pollRoutine == null) return;
+        var c = LudoClient.Instance;
+        if (c == null || string.IsNullOrEmpty(c.gameId)) return;
+        c.GetRoomInfo(c.gameId, c.playerId,
+            onSuccess: (info) =>
+            {
+                UpdateLobbyPlayers(info);
+                if (info.gamePhase == "playing")
+                {
+                    StopPolling();
+                    SceneManager.LoadScene("Game");
+                }
+            },
+            onError: (err) => Debug.LogWarning("Lobby resume poll: " + err)
+        );
+        StartPolling();
+    }
+
     void Start()
     {
         ShowStep(step_initialMenu);
@@ -271,7 +301,7 @@ public class Lobby : MonoBehaviour
     {
         while (true)
         {
-            yield return new WaitForSeconds(1f);
+            yield return new WaitForSecondsRealtime(1f);
             bool waiting = true;
             LudoClient.Instance.GetRoomInfo(LudoClient.Instance.gameId, LudoClient.Instance.playerId,
                 onSuccess: (info) =>
@@ -353,5 +383,5 @@ public class Lobby : MonoBehaviour
     {
         playerIndicator.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = nick;
     }
-    
+
 }

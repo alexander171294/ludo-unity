@@ -39,6 +39,23 @@ public class GameController : MonoBehaviour
         public List<string> steps = new List<string>();
     }
 
+    void OnEnable()
+    {
+        LudoClient.OnApplicationResumed += HandleApplicationResumed;
+    }
+
+    void OnDisable()
+    {
+        LudoClient.OnApplicationResumed -= HandleApplicationResumed;
+    }
+
+    void HandleApplicationResumed()
+    {
+        if (!_polling) return;
+        FetchNow();
+        StartPolling();
+    }
+
     void Start()
     {
         var client = LudoClient.Instance;
@@ -109,7 +126,7 @@ public class GameController : MonoBehaviour
 
     IEnumerator RetryInit()
     {
-        yield return new WaitForSeconds(2f);
+        yield return new WaitForSecondsRealtime(2f);
         FetchAndInit();
     }
 
@@ -136,7 +153,7 @@ public class GameController : MonoBehaviour
     {
         while (_polling)
         {
-            yield return new WaitForSeconds(0.5f);
+            yield return new WaitForSecondsRealtime(0.5f);
             var client = LudoClient.Instance;
             client.GetRoomInfo(client.gameId, client.playerId,
                 onSuccess: UpdateFromRoomInfo,

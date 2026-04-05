@@ -83,7 +83,34 @@ public class LudoClient : MonoBehaviour
 {
     public static LudoClient Instance { get; private set; }
 
+    /// <summary>Se dispara al volver al primer plano (Android/iOS: multitarea, panel de notificaciones, etc.).</summary>
+    public static event Action OnApplicationResumed;
+
     public string baseUrl = "https://api-ludo.deepnova.app/ludo";
+
+    static float s_lastResumeEventTime = -1000f;
+    const float ResumeEventMinInterval = 0.2f;
+
+    static void TryInvokeApplicationResumed()
+    {
+        float now = Time.realtimeSinceStartup;
+        if (now - s_lastResumeEventTime < ResumeEventMinInterval)
+            return;
+        s_lastResumeEventTime = now;
+        OnApplicationResumed?.Invoke();
+    }
+
+    void OnApplicationPause(bool pauseStatus)
+    {
+        if (!pauseStatus)
+            TryInvokeApplicationResumed();
+    }
+
+    void OnApplicationFocus(bool hasFocus)
+    {
+        if (hasFocus)
+            TryInvokeApplicationResumed();
+    }
 
     // Session state (persists across scenes)
     [NonSerialized] public string gameId;
