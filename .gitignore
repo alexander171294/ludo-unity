@@ -16,6 +16,10 @@ Ludo Mobile/[Ll]ogs/
 Ludo Mobile/[Uu]ser[Ss]ettings/
 Ludo Mobile/*.log
 
+# Salida de compilación IL2CPP / Burst (no versionar)
+Ludo Mobile/*_BurstDebugInformation_DoNotShip/
+Ludo Mobile/*_BackUpThisFolder_ButDontShipItWithYourGame/
+
 Ludo Mobile/*.blend1
 Ludo Mobile/*.blend1.meta
 
