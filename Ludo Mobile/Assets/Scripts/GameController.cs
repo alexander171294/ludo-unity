@@ -33,6 +33,8 @@ public class GameController : MonoBehaviour
     readonly HashSet<Chip> _chipsPathAnimating = new HashSet<Chip>();
     readonly Dictionary<Chip, Coroutine> _chipPathCoroutines = new Dictionary<Chip, Coroutine>();
 
+    Coroutine _afterRollRefetchRoutine;
+
     class PathAnimSpec
     {
         public string snapFrom;
@@ -83,6 +85,11 @@ public class GameController : MonoBehaviour
 
     void OnDestroy()
     {
+        if (_afterRollRefetchRoutine != null)
+        {
+            StopCoroutine(_afterRollRefetchRoutine);
+            _afterRollRefetchRoutine = null;
+        }
         StopPolling();
         foreach (var kv in _chipPathCoroutines)
         {
@@ -153,7 +160,7 @@ public class GameController : MonoBehaviour
     {
         while (_polling)
         {
-            yield return new WaitForSecondsRealtime(0.5f);
+            yield return new WaitForSecondsRealtime(0.3f);
             var client = LudoClient.Instance;
             client.GetRoomInfo(client.gameId, client.playerId,
                 onSuccess: UpdateFromRoomInfo,
@@ -619,8 +626,10 @@ public class GameController : MonoBehaviour
                     pc.dice.RollTo(diceValue, 8);
                     _diceShowUntil[localColorIndex] = Time.time + DICE_SHOW_DURATION;
                 }
-                // Fetch immediately to update state without waiting for poll
-                FetchNow();
+                // El GET inmediato a veces llega antes de que el backend publique canMovePiece; reintentamos en corto.
+                if (_afterRollRefetchRoutine != null)
+                    StopCoroutine(_afterRollRefetchRoutine);
+                _afterRollRefetchRoutine = StartCoroutine(RefetchUntilCanSelectPiece(localColorIndex));
             },
             onError: (err) => Debug.LogError("RollDice error: " + err)
         );
@@ -652,6 +661,57 @@ public class GameController : MonoBehaviour
     }
 
     // ── Immediate Fetch (after actions) ──────────────────────────
+
+    static bool LocalPlayerCanSelectPiece(RoomInfo info, int localColorIndex)
+    {
+        if (info == null || !info.canMovePiece || info.players == null) return false;
+        int cp = info.currentPlayer;
+        if (cp < 0 || cp >= info.players.Length) return false;
+        var pd = info.players[cp];
+        if (LudoClient.ColorToIndex(pd.color) != localColorIndex) return false;
+        return pd.action == "select_piece" || pd.action == "move_piece";
+    }
+
+    /// <summary>Reintenta GET hasta que el servidor exponga fase de elegir ficha (evita carrera tras POST roll-dice).</summary>
+    IEnumerator RefetchUntilCanSelectPiece(int localColorIndex)
+    {
+        var client = LudoClient.Instance;
+        if (client == null) yield break;
+
+        const int maxAttempts = 20;
+        const float betweenAttempts = 0.035f;
+
+        try
+        {
+            for (int attempt = 0; attempt < maxAttempts; attempt++)
+            {
+                bool responded = false;
+                bool canSelect = false;
+                client.GetRoomInfo(client.gameId, client.playerId,
+                    onSuccess: (info) =>
+                    {
+                        UpdateFromRoomInfo(info);
+                        canSelect = LocalPlayerCanSelectPiece(info, localColorIndex);
+                        responded = true;
+                    },
+                    onError: (_) => { responded = true; }
+                );
+
+                while (!responded)
+                    yield return null;
+
+                if (canSelect)
+                    yield break;
+
+                if (attempt + 1 < maxAttempts)
+                    yield return new WaitForSecondsRealtime(betweenAttempts);
+            }
+        }
+        finally
+        {
+            _afterRollRefetchRoutine = null;
+        }
+    }
 
     void FetchNow()
     {
