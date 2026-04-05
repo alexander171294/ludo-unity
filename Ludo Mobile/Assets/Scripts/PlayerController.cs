@@ -15,6 +15,7 @@ public class PlayerController : MonoBehaviour
     public GameObject chipPrefab;
     public GameObject UI_playerCard;           // disabled by default
     public GameObject activeTurnIndicator;     // hijo "active": turno de este jugador en partida
+    public GameObject youIndicator;         // texto "eres tu!"
 
     [HideInInspector, System.NonSerialized] public Chip[] chips; // runtime; no serializar (evita [] en escena que rompía InitChips)
     [HideInInspector] public bool isActive;    // player joined the game
@@ -66,6 +67,9 @@ public class PlayerController : MonoBehaviour
 
         if (activeTurnIndicator != null)
             activeTurnIndicator.SetActive(isCurrentTurn && gamePhase == "playing");
+
+        if (youIndicator != null)
+            youIndicator.SetActive(isLocalPlayer);
     }
 
     public void Deactivate()
@@ -75,6 +79,8 @@ public class PlayerController : MonoBehaviour
         dice.gameObject.SetActive(false);
         if (activeTurnIndicator != null)
             activeTurnIndicator.SetActive(false);
+        if (youIndicator != null)
+            youIndicator.SetActive(false);
         if (chips != null)
         {
             foreach (var c in chips)

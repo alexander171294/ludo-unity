@@ -27,7 +27,7 @@ public class Lobby : MonoBehaviour
     public TextMeshProUGUI errorText;
 
     // ── Pick color and nickname ────────────────────────────────────
-    public List<Button> colorButtons;                          // 0=Red,1=Blue,2=Green,3=Yellow
+    public List<Button> colorButtons;                          // 0=Red,1=Blue,2=Yellow,3=Green (orden en escena / índices API)
     public List<Image> colorButtonsTaken;                      // overlay when taken
     public List<Image> colorButtonsSelectedIndicator;          // highlight when selected
 
@@ -176,7 +176,7 @@ public class Lobby : MonoBehaviour
         LudoClient.Instance.GetAvailableColors(LudoClient.Instance.gameId, (colors) =>
         {
             HashSet<string> available = new HashSet<string>(colors);
-            string[] colorNames = { "red", "blue", "green", "yellow" };
+            string[] colorNames = { "red", "blue", "yellow", "green" };
             for (int i = 0; i < colorButtons.Count; i++)
             {
                 bool isTaken = !available.Contains(colorNames[i]);
@@ -211,7 +211,7 @@ public class Lobby : MonoBehaviour
 
     void OnPlay()
     {
-        string[] colorNames = { "red", "blue", "green", "yellow" };
+        string[] colorNames = { "red", "blue", "yellow", "green" };
         string color = colorNames[_selectedColorIndex];
         string nick = nicknameInput.text.Trim();
 

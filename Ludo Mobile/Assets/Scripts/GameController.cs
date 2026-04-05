@@ -9,7 +9,7 @@ public class GameController : MonoBehaviour
     public List<GameObject> boardPositions;       // p0-p51
 
     [Tooltip("Separación en Y local entre fichas apiladas en la misma casilla (relativo al transform de la casilla).")]
-    public float stackYOffsetPerChip = 7f;
+    public float stackYOffsetPerChip = 14f;
 
     [Tooltip("Pausa entre casillas al animar un movimiento (local u otro jugador).")]
     public float chipStepSeconds = 0.07f;
@@ -278,14 +278,17 @@ public class GameController : MonoBehaviour
                 var chip = FindChipForPiece(pc, i, piece.id);
                 if (chip == null) continue;
 
+                bool onSpawn = !string.IsNullOrEmpty(piece.position) && piece.position.StartsWith("sp");
+                bool onEnd = !string.IsNullOrEmpty(piece.position)
+                    && (piece.position == "ep" || piece.position.StartsWith("ep"));
+
                 // Backend usa select_piece (elegir ficha) y move_piece (ejecutar / elegir destino según reglas del servidor).
                 bool pieceTurn = info.canMovePiece
                               && (pd.action == "select_piece" || pd.action == "move_piece");
-                bool clickable = (ci == localColorIndex) && isCurrentTurn && pieceTurn;
+                bool clickable = (ci == localColorIndex) && isCurrentTurn && pieceTurn && !onEnd;
                 chip.SetClickable(clickable);
 
-                bool onSpawn = !string.IsNullOrEmpty(piece.position) && piece.position.StartsWith("sp");
-                bool showChipIndicator = showMoveHints && (!onSpawn || diceAllowsSpawnExit);
+                bool showChipIndicator = showMoveHints && !onEnd && (!onSpawn || diceAllowsSpawnExit);
                 chip.SetIndicatorActive(showChipIndicator);
             }
         }
