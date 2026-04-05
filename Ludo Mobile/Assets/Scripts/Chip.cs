@@ -8,6 +8,8 @@ public class Chip : MonoBehaviour
     [HideInInspector] public int pieceId;
     [HideInInspector] public int colorIndex;
 
+    public GameObject activeIndicator; // default inactive
+
     GameController _controller;
 
     public void Setup(int pieceId, int colorIndex, GameController controller)
@@ -34,5 +36,11 @@ public class Chip : MonoBehaviour
             chipButton.onClick.AddListener(() => _controller.OnChipClicked(pieceId));
         // Don't toggle interactable — it changes the button's color tint (makes it transparent)
         // Instead, just control whether click listeners are attached
+    }
+
+    public void SetIndicatorActive(bool active)
+    {
+        if (activeIndicator != null)
+            activeIndicator.SetActive(active);
     }
 }

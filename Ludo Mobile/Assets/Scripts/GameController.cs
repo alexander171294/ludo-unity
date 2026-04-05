@@ -9,7 +9,7 @@ public class GameController : MonoBehaviour
     public List<GameObject> boardPositions;       // p0-p51
 
     [Tooltip("Separación en Y local entre fichas apiladas en la misma casilla (relativo al transform de la casilla).")]
-    public float stackYOffsetPerChip = 5f;
+    public float stackYOffsetPerChip = 7f;
 
     [Tooltip("Pausa entre casillas al animar un movimiento (local u otro jugador).")]
     public float chipStepSeconds = 0.07f;
