@@ -14,6 +14,7 @@ public class PlayerController : MonoBehaviour
     public Image playerTimmer;                 // fill horizontal 1→0
     public GameObject chipPrefab;
     public GameObject UI_playerCard;           // disabled by default
+    public GameObject activeTurnIndicator;     // hijo "active": turno de este jugador en partida
 
     [HideInInspector, System.NonSerialized] public Chip[] chips; // runtime; no serializar (evita [] en escena que rompía InitChips)
     [HideInInspector] public bool isActive;    // player joined the game
@@ -32,7 +33,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    public void UpdateState(PlayerData data, bool isCurrentTurn, string gamePhase, bool diceTimerActive = false)
+    public void UpdateState(PlayerData data, bool isCurrentTurn, string gamePhase, bool isLocalPlayer, bool diceTimerActive = false)
     {
         isActive = true;
         UI_playerCard.SetActive(true);
@@ -42,16 +43,29 @@ public class PlayerController : MonoBehaviour
         float timeLeft = data.actionTimeLeft;
         playerTimmer.fillAmount = timeLeft / 100f;
 
-        // Dado visible: tirar / animación, o mientras elige o mueve con valor ya conocido (no solo si hubo lastMove).
-        bool showDice = isCurrentTurn && (
-            data.action == "roll_dice"
-            || data.action == "rolling"
-            || ((data.action == "select_piece" || data.action == "move_piece") && data.diceValue >= 1));
-        if (diceTimerActive)
-            showDice = true;
+        // Dado: el jugador local solo lo ve al tirar; rivales siguen viendo valor tras tirada (timer) o al mover.
+        bool showDice;
+        if (isLocalPlayer)
+        {
+            showDice = isCurrentTurn && (
+                data.action == "roll_dice"
+                || data.action == "rolling");
+        }
+        else
+        {
+            showDice = isCurrentTurn && (
+                data.action == "roll_dice"
+                || data.action == "rolling"
+                || ((data.action == "select_piece" || data.action == "move_piece") && data.diceValue >= 1));
+            if (diceTimerActive)
+                showDice = true;
+        }
         dice.gameObject.SetActive(showDice);
         if (showDice && data.diceValue >= 1 && data.diceValue <= 6 && !dice.IsRolling)
             dice.RollTo(data.diceValue, 0);
+
+        if (activeTurnIndicator != null)
+            activeTurnIndicator.SetActive(isCurrentTurn && gamePhase == "playing");
     }
 
     public void Deactivate()
@@ -59,6 +73,8 @@ public class PlayerController : MonoBehaviour
         isActive = false;
         UI_playerCard.SetActive(false);
         dice.gameObject.SetActive(false);
+        if (activeTurnIndicator != null)
+            activeTurnIndicator.SetActive(false);
         if (chips != null)
         {
             foreach (var c in chips)

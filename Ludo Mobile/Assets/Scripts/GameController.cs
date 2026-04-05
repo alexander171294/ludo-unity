@@ -266,11 +266,16 @@ public class GameController : MonoBehaviour
 
             bool isCurrentTurn = (p == info.currentPlayer);
 
+            bool showMoveHints = (ci == localColorIndex) && isCurrentTurn && info.canMovePiece
+                && (pd.action == "select_piece" || pd.action == "move_piece");
+            int diceForHints = pd.diceValue;
+            bool diceAllowsSpawnExit = (diceForHints == 1 || diceForHints == 6);
+
             for (int i = 0; i < pd.pieces.Length; i++)
             {
                 if (i >= pc.chips.Length) break;
                 var piece = pd.pieces[i];
-                var chip = pc.chips[i];
+                var chip = FindChipForPiece(pc, i, piece.id);
                 if (chip == null) continue;
 
                 // Backend usa select_piece (elegir ficha) y move_piece (ejecutar / elegir destino según reglas del servidor).
@@ -278,6 +283,10 @@ public class GameController : MonoBehaviour
                               && (pd.action == "select_piece" || pd.action == "move_piece");
                 bool clickable = (ci == localColorIndex) && isCurrentTurn && pieceTurn;
                 chip.SetClickable(clickable);
+
+                bool onSpawn = !string.IsNullOrEmpty(piece.position) && piece.position.StartsWith("sp");
+                bool showChipIndicator = showMoveHints && (!onSpawn || diceAllowsSpawnExit);
+                chip.SetIndicatorActive(showChipIndicator);
             }
         }
 
@@ -314,7 +323,8 @@ public class GameController : MonoBehaviour
             _prevDiceByColor[ci] = dv;
 
             bool diceTimerActive = _diceShowUntil.TryGetValue(ci, out float showUntil) && Time.time < showUntil;
-            pc.UpdateState(pd, isCurrentTurn, info.gamePhase, diceTimerActive);
+            bool isLocalPlayer = (ci == localColorIndex);
+            pc.UpdateState(pd, isCurrentTurn, info.gamePhase, isLocalPlayer, diceTimerActive);
         }
     }
 
