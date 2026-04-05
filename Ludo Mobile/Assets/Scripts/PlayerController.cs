@@ -15,7 +15,7 @@ public class PlayerController : MonoBehaviour
     public GameObject chipPrefab;
     public GameObject UI_playerCard;           // disabled by default
 
-    [HideInInspector] public Chip[] chips;     // 4 chips, created by GameController
+    [HideInInspector, System.NonSerialized] public Chip[] chips; // runtime; no serializar (evita [] en escena que rompía InitChips)
     [HideInInspector] public bool isActive;    // player joined the game
 
     public void InitChips(GameController controller)

@@ -76,6 +76,9 @@ public class GameController : MonoBehaviour
         _chipsPathAnimating.Clear();
     }
 
+    // chips puede ser [] serializado en la escena (no null) — hay que instanciar igual.
+    static bool NeedsChipInit(PlayerController pc) => pc != null && (pc.chips == null || pc.chips.Length == 0);
+
     void FetchAndInit()
     {
         var client = LudoClient.Instance;
@@ -88,7 +91,7 @@ public class GameController : MonoBehaviour
                     int ci = LudoClient.ColorToIndex(pd.color);
                     if (_colorToPlayer.TryGetValue(ci, out var pc))
                     {
-                        if (pc.chips == null)
+                        if (NeedsChipInit(pc))
                             pc.InitChips(this);
                     }
                 }
@@ -195,7 +198,7 @@ public class GameController : MonoBehaviour
             int ci = LudoClient.ColorToIndex(pd.color);
             if (!_colorToPlayer.TryGetValue(ci, out var pc)) continue;
 
-            if (pc.chips == null)
+            if (NeedsChipInit(pc))
                 pc.InitChips(this);
 
             for (int i = 0; i < pd.pieces.Length; i++)
@@ -203,6 +206,7 @@ public class GameController : MonoBehaviour
                 if (i >= pc.chips.Length) break;
                 var piece = pd.pieces[i];
                 var chip = FindChipForPiece(pc, i, piece.id);
+                if (chip == null) continue;
 
                 chip.gameObject.SetActive(true);
                 Transform target = ResolvePosition(piece.position, ci);
@@ -257,7 +261,7 @@ public class GameController : MonoBehaviour
             int ci = LudoClient.ColorToIndex(pd.color);
             if (!_colorToPlayer.TryGetValue(ci, out var pc)) continue;
 
-            if (pc.chips == null)
+            if (NeedsChipInit(pc))
                 pc.InitChips(this);
 
             bool isCurrentTurn = (p == info.currentPlayer);
@@ -267,6 +271,7 @@ public class GameController : MonoBehaviour
                 if (i >= pc.chips.Length) break;
                 var piece = pd.pieces[i];
                 var chip = pc.chips[i];
+                if (chip == null) continue;
 
                 // Backend usa select_piece (elegir ficha) y move_piece (ejecutar / elegir destino según reglas del servidor).
                 bool pieceTurn = info.canMovePiece
